@@ -5,41 +5,14 @@
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <!-- Верхняя панель -->
-            <RowDefinition Height="Auto"/>
             <!-- Список сообщений -->
             <RowDefinition Height="*"/>
             <!-- Нижняя панель ввода -->
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-        <Border Grid.Row="0"
-                Padding="6"
-                Margin="0,0,0,8"
-                BorderThickness="0,0,0,1"
-                BorderBrush="#DDDDDD"
-                Background="#F8F8F8">
-            <DockPanel>
-                <TextBlock Text="Пользователь:"
-                           VerticalAlignment="Center"
-                           FontWeight="Bold"
-                           Margin="0,0,6,0"/>
-
-                <TextBox x:Name="UserNameTextBox"
-                         Width="200"
-                         VerticalAlignment="Center"
-                         Text="Начальник цеха"/>
-
-                <TextBlock Text="   |   ЗаводОнлайн"
-                           VerticalAlignment="Center"
-                           Foreground="Gray"
-                           Margin="8,0,0,0"/>
-            </DockPanel>
-        </Border>
-
         <!-- СПИСОК СООБЩЕНИЙ -->
-        <ScrollViewer Grid.Row="1"
+        <ScrollViewer Grid.Row="0"
                       Margin="0,0,0,10"
                       VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Messages}">
@@ -76,11 +49,11 @@
                                            TextWrapping="Wrap"
                                            Margin="0,2,0,0"/>
 
-                                <TextBlock Text="{Binding Timestamp, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
+                                <!-- 24-часовой формат времени -->
+                                <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm}}"
                                            FontSize="10"
                                            Foreground="Gray"
                                            HorizontalAlignment="Right"/>
-                                
                             </StackPanel>
                         </Border>
                     </DataTemplate>
@@ -89,7 +62,7 @@
         </ScrollViewer>
 
         <!-- НИЖНЯЯ ПАНЕЛЬ ВВОДА -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="1"
                 Padding="8"
                 BorderThickness="1,1,0,0"
                 BorderBrush="#DDDDDD"
@@ -98,23 +71,34 @@
                 <Grid.ColumnDefinitions>
                     <!-- Поле ввода занимает всё оставшееся -->
                     <ColumnDefinition Width="*"/>
-                    <!-- Колонка под кнопку -->
+                    <!-- Колонка под кнопкой -->
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Поле ввода сообщения -->
-                <TextBox x:Name="MessageTextBox"
-                         Grid.Column="0"
-                         Margin="0,0,8,0"
-                         Height="60"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto"
-                         FontSize="14"
-                         VerticalContentAlignment="Top"
-                         PreviewKeyDown="MessageTextBox_KeyDown" />
+                <!-- Обёртка для TextBox + Placeholder -->
+                <Grid Grid.Column="0" Margin="0,0,8,0">
+                    <!-- Поле ввода сообщения -->
+                    <TextBox x:Name="MessageTextBox"
+                             TextChanged="MessageTextBox_TextChanged"
+                             Height="60"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             FontSize="14"
+                             VerticalContentAlignment="Top"
+                             PreviewKeyDown="MessageTextBox_KeyDown" />
 
-                <!-- Блок с кнопкой и подсказкой -->
+                    <!-- Плейсхолдер -->
+                    <TextBlock x:Name="PlaceholderTextBlock"
+                               Margin="4,4,0,0"
+                               Foreground="Gray"
+                               FontSize="12"
+                               IsHitTestVisible="False"
+                               VerticalAlignment="Top"
+                               Opacity="0.7"/>
+                </Grid>
+
+                <!-- Блок с кнопкой отправки -->
                 <StackPanel Grid.Column="1"
                             Orientation="Vertical"
                             VerticalAlignment="Bottom">
@@ -123,13 +107,7 @@
                             Width="120"
                             Height="32"
                             FontSize="14"
-                            Margin="0,0,0,4"
                             Click="SendButton_Click"/>
-
-                    <TextBlock Text="Enter — отправить, Shift+Enter — новая строка"
-                               FontSize="10"
-                               Foreground="Gray"
-                               TextWrapping="Wrap"/>
                 </StackPanel>
             </Grid>
         </Border>
