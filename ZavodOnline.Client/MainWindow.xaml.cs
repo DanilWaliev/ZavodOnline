@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Input;
 using ZavodOnline.Client.Models;
 
 namespace ZavodOnline.Client
@@ -17,7 +18,7 @@ namespace ZavodOnline.Client
             // биндинги типа {Binding ...} будут смотреть на этот объект
             DataContext = this;
 
-            // Приветственное системное сообщение (чужое)
+            // Приветственные сообщения
             Messages.Add(new MessageModel
             {
                 Author = "Система",
@@ -26,7 +27,6 @@ namespace ZavodOnline.Client
                 IsOwn = false
             });
 
-            // Для примера ещё одно "чужое"
             Messages.Add(new MessageModel
             {
                 Author = "Диспетчер смены",
@@ -36,17 +36,24 @@ namespace ZavodOnline.Client
             });
         }
 
-        private void SendButton_Click(object sender, RoutedEventArgs e)
+        // Общий метод отправки сообщения
+        private void SendCurrentMessage()
         {
             string text = MessageTextBox.Text.Trim();
 
             if (string.IsNullOrEmpty(text))
                 return;
 
-            // Наше сообщение
+            // Берём имя пользователя из верхнего поля
+            string author = UserNameTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(author))
+            {
+                author = "Пользователь"; // запасной вариант
+            }
+
             Messages.Add(new MessageModel
             {
-                Author = "Вы",
+                Author = author,
                 Text = text,
                 Timestamp = DateTime.Now,
                 IsOwn = true
@@ -55,5 +62,31 @@ namespace ZavodOnline.Client
             MessageTextBox.Clear();
             MessageTextBox.Focus();
         }
+
+
+        private void SendButton_Click(object sender, RoutedEventArgs e)
+        {
+            SendCurrentMessage();
+        }
+
+        private void MessageTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Главный Enter (Return) или NumPad Enter
+            if (e.Key == Key.Return || e.Key == Key.Enter)
+            {
+                // Если зажат Shift — просто новая строка
+                if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                {
+                    return; // даём WPF вставить перевод строки
+                }
+
+                // Без Shift — отправляем сообщение
+                SendCurrentMessage();
+
+                // Помечаем, что клавишу обработали сами
+                e.Handled = true;
+            }
+        }
+
     }
 }
