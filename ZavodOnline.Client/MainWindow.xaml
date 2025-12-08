@@ -1,0 +1,36 @@
+﻿<Window x:Class="ZavodOnline.Client.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ЗаводОнлайн - клиент" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <!-- Список сообщений -->
+            <RowDefinition Height="*"/>
+            <!-- Ввод и кнопка -->
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Список сообщений -->
+        <ListBox x:Name="MessagesListBox"
+                 Grid.Row="0"
+                 Margin="0,0,0,10"
+                 FontSize="14"/>
+
+        <!-- Поле ввода + кнопка Отправить -->
+        <DockPanel Grid.Row="1">
+            <TextBox x:Name="MessageTextBox"
+                     DockPanel.Dock="Left"
+                     Margin="0,0,10,0"
+                     Height="40"
+                     VerticalContentAlignment="Center"
+                     FontSize="14"/>
+            <Button x:Name="SendButton"
+                    Content="Отправить"
+                    Width="120"
+                    Height="40"
+                    FontSize="14"
+                    Click="SendButton_Click"/>
+        </DockPanel>
+    </Grid>
+</Window>
