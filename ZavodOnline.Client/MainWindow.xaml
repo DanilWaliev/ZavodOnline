@@ -12,10 +12,53 @@
         </Grid.RowDefinitions>
 
         <!-- Список сообщений -->
-        <ListBox x:Name="MessagesListBox"
-                 Grid.Row="0"
-                 Margin="0,0,0,10"
-                 FontSize="14"/>
+        <ScrollViewer Grid.Row="0"
+                      Margin="0,0,0,10"
+                      VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Messages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,4"
+                                Padding="6"
+                                CornerRadius="8">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <!-- базовые значения: чужое сообщение -->
+                                    <Setter Property="Background" Value="#E0E0E0"/>
+                                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="BorderBrush" Value="#CCCCCC"/>
+
+                                    <Style.Triggers>
+                                        <!-- если IsOwn = true, меняем оформление -->
+                                        <DataTrigger Binding="{Binding IsOwn}" Value="True">
+                                            <Setter Property="Background" Value="#CFE8FF"/>
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="BorderBrush" Value="#99BEEA"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <StackPanel>
+                                <TextBlock Text="{Binding Author}"
+                                           FontWeight="Bold"
+                                           FontSize="12"/>
+
+                                <TextBlock Text="{Binding Text}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,2,0,0"/>
+
+                                <TextBlock Text="{Binding Timestamp}"
+                                           FontSize="10"
+                                           Foreground="Gray"
+                                           HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
 
         <!-- Поле ввода + кнопка Отправить -->
         <DockPanel Grid.Row="1">
@@ -25,6 +68,7 @@
                      Height="40"
                      VerticalContentAlignment="Center"
                      FontSize="14"/>
+
             <Button x:Name="SendButton"
                     Content="Отправить"
                     Width="120"
