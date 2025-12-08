@@ -23,14 +23,12 @@
                                 CornerRadius="8">
                             <Border.Style>
                                 <Style TargetType="Border">
-                                    <!-- базовые значения: чужое сообщение -->
                                     <Setter Property="Background" Value="#E0E0E0"/>
                                     <Setter Property="HorizontalAlignment" Value="Left"/>
                                     <Setter Property="BorderThickness" Value="1"/>
                                     <Setter Property="BorderBrush" Value="#CCCCCC"/>
 
                                     <Style.Triggers>
-                                        <!-- если IsOwn = true, меняем оформление -->
                                         <DataTrigger Binding="{Binding IsOwn}" Value="True">
                                             <Setter Property="Background" Value="#CFE8FF"/>
                                             <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -49,7 +47,6 @@
                                            TextWrapping="Wrap"
                                            Margin="0,2,0,0"/>
 
-                                <!-- 24-часовой формат времени -->
                                 <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm}}"
                                            FontSize="10"
                                            Foreground="Gray"
@@ -69,45 +66,64 @@
                 Background="#F5F5F5">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <!-- Поле ввода занимает всё оставшееся -->
                     <ColumnDefinition Width="*"/>
-                    <!-- Колонка под кнопкой -->
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Обёртка для TextBox + Placeholder -->
                 <Grid Grid.Column="0" Margin="0,0,8,0">
-                    <!-- Поле ввода сообщения -->
                     <TextBox x:Name="MessageTextBox"
-                             TextChanged="MessageTextBox_TextChanged"
+                             Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
                              Height="60"
                              TextWrapping="Wrap"
                              AcceptsReturn="True"
                              VerticalScrollBarVisibility="Auto"
                              FontSize="14"
                              VerticalContentAlignment="Top"
-                             PreviewKeyDown="MessageTextBox_KeyDown" />
+                             PreviewKeyDown="MessageTextBox_KeyDown"
+                             IsEnabled="{Binding IsConnected}">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Opacity" Value="1.0" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="False">
+                                        <Setter Property="Opacity" Value="0.6" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
 
                     <!-- Плейсхолдер -->
-                    <TextBlock x:Name="PlaceholderTextBlock"
-                               Margin="4,4,0,0"
+                    <TextBlock Margin="4,4,0,0"
                                Foreground="Gray"
                                FontSize="12"
                                IsHitTestVisible="False"
                                VerticalAlignment="Top"
-                               Opacity="0.7"/>
+                               Opacity="0.7"
+                               Text="{Binding PlaceholderText}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding NewMessageText}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Grid>
 
-                <!-- Блок с кнопкой отправки -->
+                <!-- Кнопка отправки -->
                 <StackPanel Grid.Column="1"
                             Orientation="Vertical"
                             VerticalAlignment="Bottom">
-                    <Button x:Name="SendButton"
-                            Content="Отправить"
-                            Width="120"
+                    <Button Width="120"
                             Height="32"
                             FontSize="14"
-                            Click="SendButton_Click"/>
+                            Content="Отправить"
+                            Command="{Binding SendMessageCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>
