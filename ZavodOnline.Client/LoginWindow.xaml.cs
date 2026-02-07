@@ -1,31 +1,40 @@
 ﻿using System.Windows;
+using ZavodOnline.Client.ViewModels;
 
 namespace ZavodOnline.Client
 {
     public partial class LoginWindow : Window
     {
+        private readonly LoginViewModel _viewModel;
+
         public LoginWindow()
         {
             InitializeComponent();
+
+            _viewModel = new LoginViewModel();
+            _viewModel.LoginSucceeded += OnLoginSucceeded;
+
+            DataContext = _viewModel;
         }
 
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private void OnLoginSucceeded()
         {
-            string userName = UserNameTextBox.Text.Trim();
-
-            if (string.IsNullOrEmpty(userName))
-            {
-                MessageBox.Show("Введите имя пользователя.", "ЗаводОнлайн",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Открываем главное окно, передаём имя
             var mainWindow = new MainWindow();
             mainWindow.Show();
+            Close();
+        }
 
-            // Закрываем окно логина
-            this.Close();
+        private void OnLoginClicked(object sender, RoutedEventArgs e)
+        {
+            _viewModel.PasswordHash = PasswordBox.Password;
+        }
+
+        // обработчик кнопки "Регистрация"
+        private void OnRegisterClicked(object sender, RoutedEventArgs e)
+        {
+            var registerWindow = new RegisterWindow();
+            registerWindow.Owner = this;
+            registerWindow.ShowDialog();
         }
     }
 }

@@ -2,11 +2,16 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ZavodOnline.Client.Models;
+using ZavodOnline.Net.Client;
+using System.Windows;
+using ZavodOnline.Net.Models;
 
 namespace ZavodOnline.Client.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+        private readonly IChatClient _chatClient;
+        public string CurrentMessage { get; set; } = string.Empty;
         public ObservableCollection<MessageModel> Messages { get; } = new();
 
         private string _newMessageText = string.Empty;
@@ -44,32 +49,16 @@ namespace ZavodOnline.Client.ViewModels
 
         public ICommand SendMessageCommand { get; }
 
-        public MainViewModel()
+        public MainViewModel(string userName)
         {
-            Messages.Add(new MessageModel
-            {
-                Author = "Система",
-                Text = "Добро пожаловать в ЗаводОнлайн!",
-                Timestamp = DateTime.Now,
-                IsOwn = false
-            });
+            _chatClient = ((App)Application.Current).ChatClient;
+            _chatClient.ChatMessageReceived += OnChatMessageReceived;
 
-            Messages.Add(new MessageModel
-            {
-                Author = "Диспетчер смены",
-                Text = "Отчёт по линии №3 нужен до 14:00.",
-                Timestamp = DateTime.Now,
-                IsOwn = false
-            });
+            SendMessageCommand = new AsyncRelayCommand(SendMessageAsync);
+        }
 
-            // пока всегда считаем, что при запуске подключены
-            IsConnected = true;
-            UpdatePlaceholder();
-
-            SendMessageCommand = new RelayCommand(
-                _ => SendCurrentMessage(),
-                _ => CanSend()
-            );
+        public MainViewModel() : this("Вы")
+        {
         }
 
         private void UpdatePlaceholder()
@@ -84,26 +73,29 @@ namespace ZavodOnline.Client.ViewModels
             return IsConnected && !string.IsNullOrWhiteSpace(NewMessageText);
         }
 
-        public void SendCurrentMessage()
+        private async Task SendMessageAsync()
         {
-            if (!IsConnected)
-                return;
-
-            var text = NewMessageText.Trim();
-            if (string.IsNullOrEmpty(text))
-                return;
-
-            const string author = "Вы";
-
-            Messages.Add(new MessageModel
+            if (!string.IsNullOrWhiteSpace(CurrentMessage))
             {
-                Author = author,
-                Text = text,
-                Timestamp = DateTime.Now,
-                IsOwn = true
-            });
+                await _chatClient.SendChatMessageAsync(CurrentMessage);
+                CurrentMessage = string.Empty;
+            }
+        }
 
-            NewMessageText = string.Empty;
+        private void OnChatMessageReceived(ChatMessage msg)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                MessageModel msgModel = new MessageModel()
+                {
+                    Text = msg.Text,
+                    Author = msg.AuthorLogin,
+                    Timestamp = msg.Timestamp,
+                    IsOwn = true,
+                }
+                ;
+                Messages.Add(msgModel);
+            });
         }
     }
 }
